@@ -1,0 +1,74 @@
+[
+  {
+    "name": "FACE",
+    "id" : "cat_1",
+    "subcat": [
+      {
+        "name": "Foundation",
+        "id" : "cat_1_1"
+      },
+      {
+        "name": "Concealer",
+        "id" : "cat_1_2"
+      },
+      {
+        "name": "Powder",
+        "id" : "cat_1_3"
+      },
+      {
+        "name": "Blush",
+        "id" : "cat_1_4"
+      }
+    ]
+  },
+  {
+    "name": "EYES",
+    "id" : "cat_2",
+    "subcat": [
+      {
+        "name": "Eyeshadow",
+        "id" : "cat_2_1"
+      },
+      {
+        "name": "Eyeliner",
+        "id" : "cat_2_2"
+      },
+      {
+        "name": "Kajal",
+        "id" : "cat_2_3"
+      },
+      {
+        "name": "Mascara",
+        "id" : "cat_2_4"
+      }
+    ]
+  },
+  {
+    "name": "LIPS",
+    "id" : "cat_3",
+    "subcat": [
+      {
+        "name": "Lipstick",
+        "id" : "cat_3_1"
+      },
+      {
+        "name": "Lip Liner",
+        "id" : "cat_3_2"
+      },
+      {
+        "name": "Lip Gloss",
+        "id" : "cat_3_3"
+      }
+    ]
+  },
+  {
+    "name": "Nail",
+    "id" : "cat_4",
+    "subcat": [
+      {
+        "name": "Nail Polish",
+        "id" : "cat_4_1"
+      }
+    ]
+  }
+]
