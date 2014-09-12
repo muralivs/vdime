@@ -196,7 +196,7 @@ function select_shade(){
 	});
 	
 	$(function() {
-		$( "#slider" ).slider({"value" : 60 });
+		$( "#slider" ).slider({"value" : 20, "max" : 40 });
 		$( "#slider" ).on( "slidechange", function( event, ui ) {refresh_model_image();} );
 	});
 }

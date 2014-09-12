@@ -60,70 +60,89 @@ function drawlines(canvas, context, xml_name){
         success: function(xml) {
     	  if($("#what_iam_wearing").html() != "") {
     		model_data = jQuery.parseJSON($("#what_iam_wearing").html()); 
-    		
     		$.each(model_data, function(i, o) {
     			if(o.type = "foundation") {
     				draw_foundation(xml, canvas, context);
     			}
-//    		  alert(o.type);
 	    	});
     		console.log(model_data);
     	  }
-//    		//Lips area
-//    		context.beginPath();
-//    		context.globalCompositeOperation = "destination-atop";
-//    		$(xml).find('LIPS').each(function(){
-//            	context.lineTo($(this).attr('X'), $(this).attr('Y'));
-//            });
-//    		context.closePath();
-//    		// line color
-//    		var shade_color = "#"+$(".shade_box.selected").attr("data-color");
-//    		context.fillStyle = shade_color;
-//    		var value = $( "#slider" ).slider("option", "value");
-////            context.globalAlpha = value/100;
-//            context.clip();
-//            
-//            //LipsInner
-////            context.globalCompositeOperation="xor";
-//    		context.beginPath();
-//    		$(xml).find('LIPSINNER').each(function(){
-//            	context.lineTo($(this).attr('X'), $(this).attr('Y'));
-//            });
-//    		context.closePath();
-//    		context.fill();
-    		
-
     	}
     });
-    
 }
 
 
 //Drawing the foundation
 function draw_foundation(xml, canvas, context) {
-	
 
-	
-	context.beginPath();
-	$(xml).find('FACE').each(function(){
-    	context.lineTo($(this).attr('X'), $(this).attr('Y'));
-    });
-	context.closePath();
+	//Create area for foundation
+	context.save();
 	var shade_color = "#"+$(".shade_box.selected").attr("data-color");
+	draw_paths("FACE", xml, canvas, context);
 	context.fillStyle = shade_color;
+    context.shadowOffsetX = 0;
+    context.shadowColor = shade_color;
+    context.shadowBlur = 30;
 	var value = $( "#slider" ).slider("option", "value");
     context.globalAlpha = value/100;
     context.fill();
-
-
-    context.globalCompositeOperation = "destination-out";
-	context.beginPath();
-	$(xml).find('LIPS').each(function(){
-    	context.lineTo($(this).attr('X'), $(this).attr('Y'));
-    });
-	context.closePath();
-	context.globalAlpha = 1;
-    context.fill();
-
     context.restore();
+    
+    context.save();
+    context.globalCompositeOperation = "destination-out";
+    draw_paths("LIPS", xml, canvas, context);
+    context.globalAlpha = 1;
+    context.fill();
+    context.restore();
+//    re_draw(canvas, context);
+
+//    context.save();
+}
+
+function re_draw(canvas, context) {
+	$.ajax({
+	    url: 'session.php',
+	    dataType: "text",
+	    type: 'POST',
+	    data: "get_model=1",
+	    success: function(data) {
+			//initiate canvas
+			var obj = JSON.parse(data);
+			drawbackground(canvas, context, obj["model_image"], obj["type"]); 
+	    }
+	});	
+}
+
+function draw_paths(area, xml, canvas, context){
+	context.beginPath();
+	t_counts = $(xml).find(area).size();
+
+	//Start on the first point
+	context.moveTo($(xml).find(area).eq(0).attr('X'), $(xml).find(area).eq(0).attr('Y'));
+	
+	//Looping to the last points
+	$(xml).find(area).each(function(index){
+		if(index < parseInt(t_counts)-1) {
+	      var xc = (parseInt($(this).attr('X')) + parseInt($(this).next().attr('X'))) / 2;
+	      var yc = (parseInt($(this).attr('Y')) + parseInt($(this).next().attr('Y'))) / 2;
+	      context.quadraticCurveTo($(this).attr('X'), $(this).attr('Y'), xc, yc);
+		} else {
+	      xc = (parseInt($(xml).find(area).eq(-1).attr('X')) + parseInt($(xml).find(area).eq(0).attr('X'))) / 2;
+	      yc = (parseInt($(xml).find(area).eq(-1).attr('Y')) + parseInt($(xml).find(area).eq(0).attr('Y'))) / 2;
+	      context.quadraticCurveTo($(xml).find(area).eq(-1).attr('X'), $(xml).find(area).eq(-1).attr('Y'), xc, yc);
+		}
+    });
+	
+	//Curve from last before point to the end point
+    xc = (parseInt($(xml).find(area).eq(-1).attr('X')) + parseInt($(xml).find(area).eq(0).attr('X'))) / 2;
+    yc = (parseInt($(xml).find(area).eq(-1).attr('Y')) + parseInt($(xml).find(area).eq(0).attr('Y'))) / 2;
+    context.quadraticCurveTo($(xml).find(area).eq(-1).attr('X'), $(xml).find(area).eq(-1).attr('Y'), xc, yc);
+
+    //Draw Curve from 0 point to first point 
+    xc = (parseInt($(xml).find(area).eq(0).attr('X')) + parseInt($(xml).find(area).eq(1).attr('X'))) / 2;
+    yc = (parseInt($(xml).find(area).eq(0).attr('Y')) + parseInt($(xml).find(area).eq(1).attr('Y'))) / 2;
+    context.quadraticCurveTo($(xml).find(area).eq(0).attr('X'), $(xml).find(area).eq(0).attr('Y'), xc, yc);
+
+    context.closePath();
+
 }
