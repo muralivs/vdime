@@ -128,7 +128,7 @@ function drawbackground(canvas, context, img, type) {
 		context.drawImage(background, 0, 0); 
 		//Draw Shapes
 		drawlines(canvas, context, xml_name, type); 
-	}
+	};
 }
 
 // Draw Area from the XML and apply the shade color
@@ -141,7 +141,7 @@ function drawlines(canvas, context, xml_name, type){
     		
     		//Lips area
     		context.beginPath();
-    		context.globalCompositeOperation="source-over";
+    		context.globalCompositeOperation = "destination-atop";
     		$(xml).find('LIPS').each(function(){
             	context.lineTo($(this).attr('X'), $(this).attr('Y'));
             });
@@ -150,17 +150,19 @@ function drawlines(canvas, context, xml_name, type){
     		var shade_color = "#"+$(".shade_box.selected").attr("data-color");
     		context.fillStyle = shade_color;
     		var value = $( "#slider" ).slider("option", "value");
-            context.globalAlpha = value/100;
-            context.fill();
+//            context.globalAlpha = value/100;
+            context.clip();
             
             //LipsInner
 //            context.globalCompositeOperation="xor";
-//    		context.beginPath();
-//    		$(xml).find('LIPSINNER').each(function(){
-//            	context.lineTo($(this).attr('X'), $(this).attr('Y'));
-//            });
-//    		context.closePath();
-//    		context.fill();
+    		context.beginPath();
+    		$(xml).find('LIPSINNER').each(function(){
+            	context.lineTo($(this).attr('X'), $(this).attr('Y'));
+            });
+    		context.closePath();
+    		context.fill();
+    		
+
     	}
     });
     
