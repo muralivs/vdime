@@ -1,5 +1,14 @@
 <?php 
 	session_start();
+  if (isset($_POST["r_data"])) {
+  		$temp = $_SESSION["wearing"];
+		foreach ($temp as $t => $p) {
+			if ($p["type"] == $_POST["r_data"]) {
+				unset($temp[$t]);
+			}
+		}
+		$_SESSION["wearing"] = $temp;
+  } elseif (isset($_POST["data"])) {
 	$chosen_product[] = json_decode($_POST["data"], true);
 	$color = json_decode($_POST["color"], true);
 	$chosen_product[0]["Color"] = $_POST["color"];
@@ -17,26 +26,42 @@
 	} else {
 		$_SESSION["wearing"] = $chosen_product;
 	}
-	$_SESSION["wearing"] = array_unique($_SESSION["wearing"], SORT_REGULAR);	
-	?>
+	$_SESSION["wearing"] = array_unique($_SESSION["wearing"], SORT_REGULAR);
+  }
+?>
 
+<?php 
+if (isset($_SESSION["wearing"])){
+	$wearing_products = $_SESSION["wearing"];
+	if (isset($_POST["sort_data"])){
+	  foreach ($wearing_products as $product => $p) {
+	    if ($_POST["sort_data"] != "ALL") {
+		  	if (strtolower($_POST["sort_data"]) != strtolower($p["category"])) {
+				unset($wearing_products[$product]);
+			}
+	    }
+	  }
+	} 
+}
+?>
+<div class="inner">
 <?php 
 if ($_SESSION["wearing"]) {
   	$cnt = 0;
-	foreach ($_SESSION["wearing"] as $product => $p) {
+	foreach ($wearing_products as $product => $p) {	
   	$cnt = $cnt+1;
 ?>
 <?php if ($cnt > 2) {?>
 <script>
 	$(function() {
-		var a_width = $("#all_products").width();
-		$("#all_products").css("width", a_width+286);	
+		var a_width = $("#all_products .inner").width();
+		$("#all_products .inner").css("width", a_width+286);	
 	});
 </script>
 <?php } ?>
 
 <div class="pull-left">
-	<a class="close">x</a>
+	<a class="close" id="<?php echo $p["type"]; ?>">x</a>
 	<div class="all_product">
 		<div class="col-xs-5 image_box"><img style="width: 100%; max-height:100px;" src="<?php if($p["productImage"] != ""){ echo $p["productImage"]; } else {echo "img/NoPhotoAvailable.jpg"; } ?>" alt="" /></div>
 		<div class="col-xs-7">
@@ -53,5 +78,9 @@ if ($_SESSION["wearing"]) {
 </div>
 <?php 
   } 
-}
+} else {
 ?>
+No Products Choosen
+<?php } ?>
+</div>
+<div id="what_iam_wearing" style="display: none;">[<?php echo json_encode($_SESSION["wearing"]); ?>]</div>

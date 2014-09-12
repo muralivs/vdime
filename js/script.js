@@ -5,6 +5,31 @@ $( document ).ready(function() {
 		findsubcat("id", this.id);
 		$(".m-cat").css("color","#dcd7d7");
 		$(this).css("color","#f00");
+		var value = $(this).html();
+		$.ajax({
+		    url: 'session.php',
+		    dataType: "text",
+		    type: 'POST',
+		    data: "category="+value,
+		    success: function() {
+				
+				$( "#ajax_r_products" ).html("Loading...");
+				$.ajax({
+				    url: 'ajax_r_products.php',
+				    dataType: "text",
+				    type: 'POST',
+				    data: "type="+value,
+				    success: function(msg) { 
+						$( "#ajax_r_products" ).html(msg);
+						if(msg != "No Matching Products") {
+							var first_product = $(msg).find(".image_box span.data").html();
+							choose_product(first_product);
+							$(".jScroll").jScrollPane();
+						}
+				    }
+				});
+			}
+		});
 	});
 
 	$(".change_brand").click(function() {
@@ -14,7 +39,7 @@ $( document ).ready(function() {
 	$(".d_before").click(function() {
 		$( ".m_before" ).toggle("display");
 	});
-
+	
 	var value = "Foundation";
 	$( "#ajax_r_products" ).html("Loading...");
 	$.ajax({
@@ -35,6 +60,24 @@ $( document ).ready(function() {
 });
 
 function scripts(){
+	$(".all_category .sort_by a").click(function(){
+		var data = $(this).html();
+		$(".all_category .sort_by a").removeClass("current");
+		$(this).addClass("current");
+		$.ajax({
+		    url: 'what_wearing.php',
+		    dataType: "text",
+		    type: 'POST',
+		    data: "sort_data="+data,
+		    success: function(msg) { 
+				$("#all_products").html(msg);
+				$("#all_products").css("display","block");
+				remove_wearing();
+			}
+		});	
+	});
+	
+	
 	$(".sub_cat").click(function() {
 		var value = $(this).html();
 		$(".sub_cat").css("color","#dcd7d7");
@@ -78,94 +121,6 @@ function scripts(){
 			}
 		});
 	});
-}
-
-//Refresh the model images setttings
-function refresh_model_image() {
-	$.ajax({
-	    url: 'session.php',
-	    dataType: "text",
-	    type: 'POST',
-	    data: "get_model=1",
-	    success: function(data) {
-			//initiate canvas
-			var canvas = document.getElementById('model_image');
-			var context = canvas.getContext('2d');
-			context.restore();
-			// call functions
-			context.save();
-			var obj = JSON.parse(data);
-			drawbackground(canvas, context, obj["model_image"], obj["type"]); 
-			$("#home").css("display", "none");
-			$("#products").css("display", "block");
-			
-	    }
-	});	
-}
-
-//Apply the Model Images
-function drawbackground(canvas, context, img, type) {
-	var MAX_WIDTH = 417;
-	var background = new Image();
-	background.src = img;
-
-	// Get points of image xml from name
-	var test_str = img;
-	var start_pos = test_str.indexOf('/') + 1;
-	var end_pos = test_str.indexOf('.',start_pos);
-	var xml_name = test_str.substring(start_pos,end_pos)+".xml";
-
-	background.onload = function(){
-		if(background.width > MAX_WIDTH) {
-			background.height_2 = canvas.width / background.width;
-			background.width_2 = canvas.width;
-			scale_x = background.width_2 / background.width;
-			scale_y = background.height_2;
-			context.scale(scale_x, scale_y);
-		}
-
-		//Draw Images
-		context.drawImage(background, 0, 0); 
-		//Draw Shapes
-		drawlines(canvas, context, xml_name, type); 
-	};
-}
-
-// Draw Area from the XML and apply the shade color
-function drawlines(canvas, context, xml_name, type){
-    $.ajax({
-        type: "GET",
-        url: "modelXML/"+xml_name,
-        dataType: "xml",
-        success: function(xml) {
-    		
-    		//Lips area
-    		context.beginPath();
-    		context.globalCompositeOperation = "destination-atop";
-    		$(xml).find('LIPS').each(function(){
-            	context.lineTo($(this).attr('X'), $(this).attr('Y'));
-            });
-    		context.closePath();
-    		// line color
-    		var shade_color = "#"+$(".shade_box.selected").attr("data-color");
-    		context.fillStyle = shade_color;
-    		var value = $( "#slider" ).slider("option", "value");
-//            context.globalAlpha = value/100;
-            context.clip();
-            
-            //LipsInner
-//            context.globalCompositeOperation="xor";
-    		context.beginPath();
-    		$(xml).find('LIPSINNER').each(function(){
-            	context.lineTo($(this).attr('X'), $(this).attr('Y'));
-            });
-    		context.closePath();
-    		context.fill();
-    		
-
-    	}
-    });
-    
 }
 
 
@@ -241,7 +196,7 @@ function select_shade(){
 	});
 	
 	$(function() {
-		$( "#slider" ).slider({"value" : 40 });
+		$( "#slider" ).slider({"value" : 60 });
 		$( "#slider" ).on( "slidechange", function( event, ui ) {refresh_model_image();} );
 	});
 }
@@ -256,8 +211,27 @@ function what_wearing(data, color){
 	    success: function(msg) { 
 			$("#all_products").html(msg);
 			$("#all_products").css("display","block");
-	    }
+			remove_wearing();
+		}
 	});	
+}
+
+function remove_wearing(){	
+	$("#all_products .close").click(function(){
+		var data = $(this).attr("id");
+		$.ajax({
+		    url: 'what_wearing.php',
+		    dataType: "text",
+		    type: 'POST',
+		    data: "r_data="+data,
+		    success: function(msg) { 
+				$("#all_products").html(msg);
+				$("#all_products").css("display","block");
+				remove_wearing();
+			}
+		});	
+	});
+		
 }
 
 function findsubcat(propName, propValue) {
@@ -267,9 +241,9 @@ function findsubcat(propName, propValue) {
 			if (data[i][propName] == propValue) {
 				$.each(data[i].subcat, function(y, item) {
 					if(y == 0 ){
-						$( "#sub_cat" ).append("<a class='sub_cat' id='"+ data[i].subcat[y].id +"' href='javascript:void(0);'>"+ data[i].subcat[y].name +"</a>");
+						$( "#sub_cat" ).append("<a class='sub_cat 1' style='color:#f00;' id='"+ data[i].subcat[y].id +"' href='javascript:void(0);'>"+ data[i].subcat[y].name +"</a>");
 					} else {
-						$( "#sub_cat" ).append("&nbsp;|&nbsp;<a class='sub_cat' id='"+ data[i].subcat[y].id +"' href='javascript:void(0);'>"+ data[i].subcat[y].name +"</a>");
+						$( "#sub_cat" ).append("&nbsp;|&nbsp;<a class='sub_cat 2' id='"+ data[i].subcat[y].id +"' href='javascript:void(0);'>"+ data[i].subcat[y].name +"</a>");
 					}
 				});
 			}

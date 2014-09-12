@@ -1,5 +1,6 @@
 <?php 
-	$category = file_get_contents('js/category.json');
+error_reporting(0);
+$category = file_get_contents('js/category.json');
 	$j_cat = json_decode($category, true);
 	$products = file_get_contents('js/productsdetails.json');
 	$j_products = json_decode($products, true);
@@ -32,11 +33,12 @@
 	<script type="text/javascript" src="js/jquery.jscrollpane.min.js"></script>	
 
 	<script src="js/script.js"></script>	
+	<script src="js/canvas.js"></script>	
 
 	<link type="image/x-icon" href="favicon.ico" rel="shortcut icon" />
 	<script>
 		$(function() {
-			$( "#slider" ).slider({"value" : 40});
+			$( "#slider" ).slider({"value" : 60});
 			$(".jScroll").jScrollPane();
 		});
 	</script>
@@ -99,7 +101,7 @@
 		<!-- Top Menu  -->
 		<div class="col-xs-12 main-cat">
 		<?php foreach ($j_cat as $key => $value) {?>
-			<a class="m-cat" href="javascript:void(0);" id="<?php echo $value["id"]; ?>"><?php echo $value["name"]; ?></a>
+			<a class="m-cat" href="javascript:void(0);" id="<?php echo $value["id"]; ?>" <?php if ($key == 0) {?>style="color: #f00;"<?php } ?>><?php echo $value["name"]; ?></a>
 		<?php } ?>
 		</div>
 		<div class="clearing"></div>
@@ -122,7 +124,7 @@
 			  	<!-- Sub category and cart -->
 				<div id="sub_cat" class="sub-cat pull-left">
 				<?php foreach ($j_cat[0]["subcat"] as $key => $value) { ?>
-					<a class="sub_cat" href="javascript:void(0);" id="<?php echo $value["id"]; ?>"><?php echo $value["name"]; ?></a><?php if ($key === end($j_cat[0]["subcat"])) { } else {?> | <?php } ?>
+					<a class="sub_cat" href="javascript:void(0);" <?php if ($key == 0) { ?>style="color:#f00;"<?php } ?> id="<?php echo $value["id"]; ?>"><?php echo $value["name"]; ?></a><?php if ($key === end($j_cat[0]["subcat"])) { } else {?> | <?php } ?>
 				<?php } ?>
 				</div>
 				<div class="cart pull-right">
@@ -259,12 +261,12 @@
 						
 						<div class="all_category">
 							<div class="col-xs-3 ">what i'am wearing</div>
-							<div class="col-xs-9 "><a href="" class="current">face</a>&nbsp;&nbsp;/&nbsp;&nbsp;<a href="">eyes</a>&nbsp;&nbsp;/&nbsp;&nbsp;<a href="">lips</a>&nbsp;&nbsp;/&nbsp;&nbsp;<a href="">nails</a>&nbsp;&nbsp;/&nbsp;&nbsp;<a href="">ALL</a></div>
+							<div class="col-xs-9 sort_by"><a href="javascript:void(0);">face</a>&nbsp;&nbsp;/&nbsp;&nbsp;<a href="javascript:void(0);">eyes</a>&nbsp;&nbsp;/&nbsp;&nbsp;<a href="javascript:void(0);">lips</a>&nbsp;&nbsp;/&nbsp;&nbsp;<a href="javascript:void(0);">nails</a>&nbsp;&nbsp;/&nbsp;&nbsp;<a class="current" href="javascript:void(0);">ALL</a></div>
 						</div>
 						<div class="clearing"></div>
 						
 					    <div class="all_products">	
-							<div id="all_products" style="display: none;">>
+							<div id="all_products" style="display: none;">
 							<!-- product List -->
 							<div class="pull-left">
 								<a class="close">x</a>

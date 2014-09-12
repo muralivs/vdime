@@ -3,6 +3,9 @@
 if (isset($_POST['type']) != "") {
 	session_start();
     $_SESSION['type']= $_POST['type'];
+} elseif (isset($_POST['category']) != "") {
+	session_start();
+	$_SESSION['category']= $_POST['category'];
 } elseif (isset($_POST['brand']) != "") {
 	session_start();
 	$_SESSION['brand']= $_POST['brand'];
