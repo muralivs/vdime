@@ -253,6 +253,7 @@ function what_wearing(data, color){
 	    data: "data="+data+"&color="+color,
 	    success: function(msg) { 
 			$("#all_products").html(msg);
+			$("#all_products").css("display","block");
 	    }
 	});	
 }

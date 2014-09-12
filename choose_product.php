@@ -37,13 +37,13 @@ if (isset($_POST['data']) != "") {
 								<div class="col-xs-4">
 									<img class="current_shade" src="img/selected_shade_bk.png" alt="" style="background: #<?php echo str_replace("0x", "", strtolower($product["Color"][0]["value"])); ?>"/>
 								</div>
-								<div class="col-xs-8 shades_area">
-									<div class="jScroll" style="width: 100%;">
+								<div class="col-xs-8 shades_area jScroll">
+									
 										<?php $i=0; foreach ($product["Color"] as $shades => $s) {  ?>
 											<div class="col-xs-3"><div style='background: #<?php echo str_replace("0x", "", strtolower($s["value"])); ?>;' class="shade_box <?php if ($i==0) {?>selected<?php }?>" data-name="<?php echo $s["name"]; ?>" data-price="<?php echo $s["price"]; ?>" data-color="<?php echo str_replace("0x", "", strtolower($s["value"])); ?>"><span style="display:none;"><?php echo json_encode($s); ?></span></div></div>
 										<?php $i=$i+1; } ?>
 									<div class="clearing"></div>
-									</div>
+									
 								</div>
 							</div>
 							<div class="clearing"></div>

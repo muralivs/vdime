@@ -9,7 +9,9 @@
 		foreach ($temp as $t => $p) {
 			if ($p["title"] == $chosen_product[0]["title"]) {
 				unset($temp[$t]);
-			} 
+			} elseif ($p["type"] == $chosen_product[0]["type"]) {
+				unset($temp[$t]);
+			}
 		}
 		$_SESSION["wearing"] =  array_merge($chosen_product, $temp );
 	} else {
@@ -20,13 +22,23 @@
 
 <?php 
 if ($_SESSION["wearing"]) {
-  foreach ($_SESSION["wearing"] as $product => $p) {
+  	$cnt = 0;
+	foreach ($_SESSION["wearing"] as $product => $p) {
+  	$cnt = $cnt+1;
 ?>
+<?php if ($cnt > 2) {?>
+<script>
+	$(function() {
+		var a_width = $("#all_products").width();
+		$("#all_products").css("width", a_width+286);	
+	});
+</script>
+<?php } ?>
 
 <div class="pull-left">
 	<a class="close">x</a>
 	<div class="all_product">
-		<div class="col-xs-5 image_box"><img style="width: 100%;" src="<?php if($p["productImage"] != ""){ echo $p["productImage"]; } else {echo "img/NoPhotoAvailable.jpg"; } ?>" alt="" /></div>
+		<div class="col-xs-5 image_box"><img style="width: 100%; max-height:100px;" src="<?php if($p["productImage"] != ""){ echo $p["productImage"]; } else {echo "img/NoPhotoAvailable.jpg"; } ?>" alt="" /></div>
 		<div class="col-xs-7">
 			<div class="clearing" style="height: 10px;"></div>
 			<div class="brand_name"><?php echo $p["brand"]; ?></div>

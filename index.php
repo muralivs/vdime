@@ -134,7 +134,7 @@
 				<div class="clearing"></div>
 				
 				<!-- Product Details Area -->
-				<div class="col-xs-12">
+				<div class="col-xs-12" style="background: #fff;">
 					<div class="col-xs-7">
 					  <div class="product_details">
 					  	<div class="d_before">Before</div>
@@ -263,8 +263,8 @@
 						</div>
 						<div class="clearing"></div>
 						
-					    <div class="all_products" id="all_products">	
-							
+					    <div class="all_products">	
+							<div id="all_products" style="display: none;">>
 							<!-- product List -->
 							<div class="pull-left">
 								<a class="close">x</a>
@@ -282,27 +282,9 @@
 									<div class="clearing"></div>
 								</div>
 							</div>
-							
-							<!-- product List -->
-							<div class="pull-left">
-								<a class="close">x</a>
-								<div class="all_product">
-									<div class="col-xs-5 image_box"><img src="img/product_image_1.jpg" alt="" /></div>
-									<div class="col-xs-7">
-										<div style="height: 10px;" class="clearing"></div>
-										<div class="brand_name">Brand</div>
-										<div class="product_name">Product name</div>
-										<div class="product_name">Category (foundation)</div>
-										<div class="shade_name">Shade name</div>
-										<div class="price">Rs- 00.00</div>
-										<div class="clearing"></div>
-										
-									</div>
-									<div class="clearing"></div>
-								</div>
+												
+							<div class="clearing"></div>
 							</div>
-						
-						<div class="clearing"></div>
 						</div>
 						
 						<div class="clearing"></div>
