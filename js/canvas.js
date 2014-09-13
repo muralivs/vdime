@@ -13,6 +13,7 @@ function refresh_model_image() {
 			// call functions
 			context.save();
 			var obj = JSON.parse(data);
+			window.imgurl = obj["model_image"];
 			drawbackground(canvas, context, obj["model_image"], obj["type"]); 
 			$("#home").css("display", "none");
 			$("#products").css("display", "block");
@@ -41,13 +42,14 @@ function drawbackground(canvas, context, img, type) {
 			background.width_2 = canvas.width;
 			scale_x = background.width_2 / background.width;
 			scale_y = background.height_2;
+			//Scale canvas to fit
 			context.scale(scale_x, scale_y);
 		}
 
 		//Draw Images
 		context.drawImage(background, 0, 0); 
 		//Draw Shapes
-		drawlines(canvas, context, xml_name, type); 
+		drawlines(canvas, context, xml_name, type);
 	};
 }
 
@@ -76,7 +78,6 @@ function drawlines(canvas, context, xml_name){
 function draw_foundation(xml, canvas, context) {
 
 	//Create area for foundation
-	context.save();
 	var shade_color = "#"+$(".shade_box.selected").attr("data-color");
 	draw_paths("FACE", xml, canvas, context);
 	context.fillStyle = shade_color;
@@ -86,31 +87,31 @@ function draw_foundation(xml, canvas, context) {
 	var value = $( "#slider" ).slider("option", "value");
     context.globalAlpha = value/100;
     context.fill();
-    context.restore();
     
-    context.save();
-    context.globalCompositeOperation = "destination-out";
-    draw_paths("LIPS", xml, canvas, context);
-    context.globalAlpha = 1;
-    context.fill();
-    context.restore();
-//    re_draw(canvas, context);
+    //Clip Lips Area
+    
+    var areas = ["LIPS", "RIGHTEYE", "LEFTEYE", "LEFTEYEBROW", "RIGHREYEBROW", "KAJALLOWERLEFT", "KAJALLOWERRIGHT", "EYESHADOWLIDLEFT", "EYESHADOWLIDRIGHT", "EYESHADOWCONTOURLEFT", "EYESHADOWCONTOURRIGHT", "EYESHADOWHIGHLIGHTLEFT", "EYESHADOWHIGHLIGHTRIGHT", "CONCEALERLEFT", "CONCEALERRIGHT"];
+    clip_excess_regions(areas, xml, canvas, context);
+}
 
-//    context.save();
+function clip_excess_regions(areas, xml, canvas, context){
+
+	for ( var int = 0; int < areas.length; int++) {
+		context.save();
+	    draw_paths(areas[int], xml, canvas, context);
+	    context.globalAlpha = 1;
+	    context.clip();
+	    re_draw(canvas, context);
+	    context.restore();
+	}
+
 }
 
 function re_draw(canvas, context) {
-	$.ajax({
-	    url: 'session.php',
-	    dataType: "text",
-	    type: 'POST',
-	    data: "get_model=1",
-	    success: function(data) {
-			//initiate canvas
-			var obj = JSON.parse(data);
-			drawbackground(canvas, context, obj["model_image"], obj["type"]); 
-	    }
-	});	
+    var background = new Image();
+	background.src = window.imgurl;
+    context.drawImage(background, 0, 0); 
+
 }
 
 function draw_paths(area, xml, canvas, context){
