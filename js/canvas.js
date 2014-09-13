@@ -63,8 +63,10 @@ function drawlines(canvas, context, xml_name){
     	  if($("#what_iam_wearing").html() != "") {
     		model_data = jQuery.parseJSON($("#what_iam_wearing").html()); 
     		$.each(model_data, function(i, o) {
-    			if(o.type = "foundation") {
-    				draw_foundation(xml, canvas, context);
+    			 if(o.type == "Lipstick") {
+    				draw_lipstick(xml, canvas, context, o.Color.value, o.op_value);
+    			} else if(o.type == "Foundation") {
+    				draw_foundation(xml, canvas, context, o.Color.value, o.op_value); 
     			}
 	    	});
     		console.log(model_data);
@@ -72,30 +74,35 @@ function drawlines(canvas, context, xml_name){
     	}
     });
 }
-
-
-//Drawing the foundation
-function draw_foundation(xml, canvas, context) {
-
-	//Create area for foundation
-	var shade_color = "#"+$(".shade_box.selected").attr("data-color");
-	draw_paths("FACE", xml, canvas, context);
-	context.fillStyle = shade_color;
-    context.shadowOffsetX = 0;
-    context.shadowColor = shade_color;
-    context.shadowBlur = 30;
-	var value = $( "#slider" ).slider("option", "value");
-    context.globalAlpha = value/100;
+function draw_lipstick(xml, canvas, context, shade, op_value){
+	//Create area for Lips
+	draw_paths("LIPS", xml, canvas, context);
+	context.fillStyle = shade;
+	console.log(shade);
+    context.globalAlpha = op_value/100;
     context.fill();
     
-    //Clip Lips Area
-    
+    var islipsopen = $(xml).find("IsMouthOpen").html();
+    if(islipsopen == "true"){
+        //Clip excess areas
+        var areas = ["LIPSINNER"];
+        clip_excess_regions(areas, xml, canvas, context);
+    }
+}
+
+//Drawing the foundation
+function draw_foundation(xml, canvas, context, shade, op_value) {
+	//Create area for foundation
+	draw_paths("FACE", xml, canvas, context);
+	context.fillStyle = shade;
+    context.globalAlpha = op_value/100;
+    context.fill();
+    //Clip excess areas
     var areas = ["LIPS", "RIGHTEYE", "LEFTEYE", "LEFTEYEBROW", "RIGHREYEBROW", "KAJALLOWERLEFT", "KAJALLOWERRIGHT", "EYESHADOWLIDLEFT", "EYESHADOWLIDRIGHT", "EYESHADOWCONTOURLEFT", "EYESHADOWCONTOURRIGHT", "EYESHADOWHIGHLIGHTLEFT", "EYESHADOWHIGHLIGHTRIGHT", "CONCEALERLEFT", "CONCEALERRIGHT"];
     clip_excess_regions(areas, xml, canvas, context);
 }
 
 function clip_excess_regions(areas, xml, canvas, context){
-
 	for ( var int = 0; int < areas.length; int++) {
 		context.save();
 	    draw_paths(areas[int], xml, canvas, context);
@@ -104,7 +111,6 @@ function clip_excess_regions(areas, xml, canvas, context){
 	    re_draw(canvas, context);
 	    context.restore();
 	}
-
 }
 
 function re_draw(canvas, context) {
@@ -115,9 +121,11 @@ function re_draw(canvas, context) {
 }
 
 function draw_paths(area, xml, canvas, context){
+	
+	context.save();
 	context.beginPath();
 	t_counts = $(xml).find(area).size();
-
+//	alert(area);
 	//Start on the first point
 	context.moveTo($(xml).find(area).eq(0).attr('X'), $(xml).find(area).eq(0).attr('Y'));
 	
@@ -145,5 +153,6 @@ function draw_paths(area, xml, canvas, context){
     context.quadraticCurveTo($(xml).find(area).eq(0).attr('X'), $(xml).find(area).eq(0).attr('Y'), xc, yc);
 
     context.closePath();
+    context.restore();
 
 }

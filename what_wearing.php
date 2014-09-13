@@ -11,7 +11,10 @@
   } elseif (isset($_POST["data"])) {
 	$chosen_product[] = json_decode($_POST["data"], true);
 	$color = json_decode($_POST["color"], true);
-	$chosen_product[0]["Color"] = $_POST["color"];
+	$color["value"] = "#".str_replace("0x", "", strtolower($color["value"]));
+//	echo $color["value"];
+	$chosen_product[0]["Color"] = $color;
+	$chosen_product[0]["op_value"] = $_POST["op_value"];
 	if ($_SESSION["wearing"] != ""){
 		$dupl = "";
 		$temp = $_SESSION["wearing"];
@@ -59,7 +62,6 @@ if ($_SESSION["wearing"]) {
 	});
 </script>
 <?php } ?>
-
 <div class="pull-left">
 	<a class="close" id="<?php echo $p["type"]; ?>">x</a>
 	<div class="all_product">
@@ -69,8 +71,8 @@ if ($_SESSION["wearing"]) {
 			<div class="brand_name"><?php echo $p["brand"]; ?></div>
 			<div class="product_name"><?php echo $p["title"]; ?></div>
 			<div class="product_name">Category (<?php echo $p["type"]; ?>)</div>
-			<div class="shade_name"><?php $shade = json_decode($p["Color"], true); echo $shade["name"]; ?></div>
-			<div class="price">Rs- <?php echo $shade["price"]; ?>.00</div>
+			<div class="shade_name"><?php echo $p["Color"]["name"]; ?></div>
+			<div class="price">Rs- <?php echo $p["Color"]["price"]; ?>.00</div>
 			<div class="clearing"></div>
 		</div>
 		<div class="clearing"></div>
@@ -83,4 +85,4 @@ if ($_SESSION["wearing"]) {
 No Products Choosen
 <?php } ?>
 </div>
-<div id="what_iam_wearing" style="display: none;">[<?php echo json_encode($_SESSION["wearing"]); ?>]</div>
+<div id="what_iam_wearing" style="display: none;"><?php echo json_encode($_SESSION["wearing"]); ?></div>

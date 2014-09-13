@@ -14,11 +14,12 @@ $( document ).ready(function() {
 		    success: function() {
 				
 				$( "#ajax_r_products" ).html("Loading...");
+				var sub_cat = $("#sub_cat").find("a").eq(0).html();
 				$.ajax({
 				    url: 'ajax_r_products.php',
 				    dataType: "text",
 				    type: 'POST',
-				    data: "type="+value,
+				    data: "type="+sub_cat,
 				    success: function(msg) { 
 						$( "#ajax_r_products" ).html(msg);
 						if(msg != "No Matching Products") {
@@ -188,26 +189,37 @@ function select_shade(){
 		
 		//add selected shade to what i am wearing
 		var data = $("#current_product_data").html(); 
-		var color = $(this).find("span").html();
-		what_wearing(data, color);
-		
+		var color = $(".shade_box.selected").find("span").html();
+		var op_value = $( "#slider" ).slider("option", "value");
+//		alert("test");
+		what_wearing(data, color, op_value);
 		//Refresh canvas details
 		refresh_model_image();
 	});
 	
 	$(function() {
 		$( "#slider" ).slider({"value" : 20, "max" : 40 });
-		$( "#slider" ).on( "slidechange", function( event, ui ) {refresh_model_image();} );
+		$( "#slider" ).on( "slidechange", function( event, ui ) {
+			//add selected shade to what i am wearing
+			var data = $("#current_product_data").html(); 
+			var color = $(".shade_box.selected").find("span").html();
+			var op_value = $( "#slider" ).slider("option", "value");
+			what_wearing(data, color, op_value);
+			
+			refresh_model_image();
+		});
 	});
 }
 
-function what_wearing(data, color){
+
+
+function what_wearing(data, color, op_value){
 	console.clear();
 	$.ajax({
 	    url: 'what_wearing.php',
 	    dataType: "text",
 	    type: 'POST',
-	    data: "data="+data+"&color="+color,
+	    data: "data="+data+"&color="+color+"&op_value="+op_value,
 	    success: function(msg) { 
 			$("#all_products").html(msg);
 			$("#all_products").css("display","block");
@@ -228,6 +240,7 @@ function remove_wearing(){
 				$("#all_products").html(msg);
 				$("#all_products").css("display","block");
 				remove_wearing();
+				refresh_model_image();
 			}
 		});	
 	});

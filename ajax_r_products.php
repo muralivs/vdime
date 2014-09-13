@@ -8,6 +8,7 @@
 	} elseif (isset($_POST['brand']) != "") {
 		$_SESSION['brand']= $_POST['brand'];
 	}
+//	echo $_POST['type'];
 	$products = get_products_list($_SESSION['brand'], $_SESSION['type']);
 ?>
 <?php 
