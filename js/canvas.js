@@ -65,22 +65,36 @@ function drawlines(canvas, context, xml_name){
     		$.each(model_data, function(i, o) {
     			 if(o.type == "Lipstick") {
     				draw_lipstick(xml, canvas, context, o.Color.value, o.op_value);
+    			} else if(o.type == "Eyeliner") {
+    				draw_eyeliner(xml, canvas, context, o.Color.value, o.op_value); 
     			} else if(o.type == "Foundation") {
     				draw_foundation(xml, canvas, context, o.Color.value, o.op_value); 
     			}
 	    	});
-    		console.log(model_data);
+//    		console.log(model_data);
     	  }
     	}
     });
 }
+
+function draw_eyeliner(xml, canvas, context, shade, op_value) {
+	//Create area for Lips
+	d_areas = ["EYELINERLOWERRIGHT", "EYELINERUPPERLEFT", "EYELINERUPPERRIGHT", "EYELINERLOWERLEFT"];
+	context.strokeStyle = shade;
+//	console.log(shade);
+    context.globalAlpha = op_value/100;
+    do_type = "stroke";
+    context.lineWidth = 6;
+    draw_paths(d_areas, xml, canvas, context, do_type);
+}
+
 function draw_lipstick(xml, canvas, context, shade, op_value){
 	//Create area for Lips
-	draw_paths("LIPS", xml, canvas, context);
+	d_areas = ["LIPS"];
 	context.fillStyle = shade;
-	console.log(shade);
-    context.globalAlpha = op_value/100;
-    context.fill();
+	context.globalAlpha = op_value/100;
+	do_type = "fill";
+    draw_paths(d_areas, xml, canvas, context, do_type);
     
     var islipsopen = $(xml).find("IsMouthOpen").html();
     if(islipsopen == "true"){
@@ -93,10 +107,12 @@ function draw_lipstick(xml, canvas, context, shade, op_value){
 //Drawing the foundation
 function draw_foundation(xml, canvas, context, shade, op_value) {
 	//Create area for foundation
-	draw_paths("FACE", xml, canvas, context);
+	d_areas = ["FACE"];
 	context.fillStyle = shade;
     context.globalAlpha = op_value/100;
-    context.fill();
+    do_type = "fill";
+    draw_paths(d_areas, xml, canvas, context, do_type);
+    
     //Clip excess areas
     var areas = ["LIPS", "RIGHTEYE", "LEFTEYE", "LEFTEYEBROW", "RIGHREYEBROW", "KAJALLOWERLEFT", "KAJALLOWERRIGHT", "EYESHADOWLIDLEFT", "EYESHADOWLIDRIGHT", "EYESHADOWCONTOURLEFT", "EYESHADOWCONTOURRIGHT", "EYESHADOWHIGHLIGHTLEFT", "EYESHADOWHIGHLIGHTRIGHT", "CONCEALERLEFT", "CONCEALERRIGHT"];
     clip_excess_regions(areas, xml, canvas, context);
@@ -105,9 +121,10 @@ function draw_foundation(xml, canvas, context, shade, op_value) {
 function clip_excess_regions(areas, xml, canvas, context){
 	for ( var int = 0; int < areas.length; int++) {
 		context.save();
-	    draw_paths(areas[int], xml, canvas, context);
+		d_areas = [areas[int]];
 	    context.globalAlpha = 1;
-	    context.clip();
+	    do_type = "clip";
+	    draw_paths(d_areas, xml, canvas, context, do_type);
 	    re_draw(canvas, context);
 	    context.restore();
 	}
@@ -117,42 +134,65 @@ function re_draw(canvas, context) {
     var background = new Image();
 	background.src = window.imgurl;
     context.drawImage(background, 0, 0); 
-
 }
 
-function draw_paths(area, xml, canvas, context){
+function draw_paths(d_areas, xml, canvas, context, do_type){
+  for ( var int = 0; int < d_areas.length; int++) {
 	
-	context.save();
 	context.beginPath();
-	t_counts = $(xml).find(area).size();
-//	alert(area);
+	t_counts = $(xml).find(d_areas[int]).size();
 	//Start on the first point
-	context.moveTo($(xml).find(area).eq(0).attr('X'), $(xml).find(area).eq(0).attr('Y'));
+	context.moveTo($(xml).find(d_areas[int]).eq(0).attr('X'), $(xml).find(d_areas[int]).eq(0).attr('Y'));
 	
+	if (do_type == "stroke") {
+		//Looping to the last points
+		$(xml).find(d_areas[int]).each(function(index){
+			if(index < parseInt(t_counts)-2) {
+				console.log(index, t_counts, $(this).attr('X'), $(this).next().attr('X'));
+		      var xc = (parseInt($(this).attr('X')) + parseInt($(this).next().attr('X'))) / 2;
+		      var yc = (parseInt($(this).attr('Y')) + parseInt($(this).next().attr('Y'))) / 2;
+		      context.quadraticCurveTo($(this).attr('X'), $(this).attr('Y'), xc, yc);
+		      context.quadraticCurveTo(xc, yc, $(this).next().attr('X'), $(this).next().attr('Y'));
+			} else {
+				console.log(index, t_counts);
+		      var xc = (parseInt($(this).attr('X')) + parseInt($(this).next().attr('X'))) / 2;
+		      var yc = (parseInt($(this).attr('Y')) + parseInt($(this).next().attr('Y'))) / 2;
+		      context.quadraticCurveTo( xc, yc, $(this).attr('X'), $(this).attr('Y'));
+			}
+	    });		
+	} else {
+		
 	//Looping to the last points
-	$(xml).find(area).each(function(index){
+	$(xml).find(d_areas[int]).each(function(index){
 		if(index < parseInt(t_counts)-1) {
 	      var xc = (parseInt($(this).attr('X')) + parseInt($(this).next().attr('X'))) / 2;
 	      var yc = (parseInt($(this).attr('Y')) + parseInt($(this).next().attr('Y'))) / 2;
 	      context.quadraticCurveTo($(this).attr('X'), $(this).attr('Y'), xc, yc);
 		} else {
-	      xc = (parseInt($(xml).find(area).eq(-1).attr('X')) + parseInt($(xml).find(area).eq(0).attr('X'))) / 2;
-	      yc = (parseInt($(xml).find(area).eq(-1).attr('Y')) + parseInt($(xml).find(area).eq(0).attr('Y'))) / 2;
-	      context.quadraticCurveTo($(xml).find(area).eq(-1).attr('X'), $(xml).find(area).eq(-1).attr('Y'), xc, yc);
+	      xc = (parseInt($(xml).find(d_areas[int]).eq(-1).attr('X')) + parseInt($(xml).find(d_areas[int]).eq(0).attr('X'))) / 2;
+	      yc = (parseInt($(xml).find(d_areas[int]).eq(-1).attr('Y')) + parseInt($(xml).find(d_areas[int]).eq(0).attr('Y'))) / 2;
+	      context.quadraticCurveTo($(xml).find(d_areas[int]).eq(-1).attr('X'), $(xml).find(d_areas[int]).eq(-1).attr('Y'), xc, yc);
 		}
     });
 	
 	//Curve from last before point to the end point
-    xc = (parseInt($(xml).find(area).eq(-1).attr('X')) + parseInt($(xml).find(area).eq(0).attr('X'))) / 2;
-    yc = (parseInt($(xml).find(area).eq(-1).attr('Y')) + parseInt($(xml).find(area).eq(0).attr('Y'))) / 2;
-    context.quadraticCurveTo($(xml).find(area).eq(-1).attr('X'), $(xml).find(area).eq(-1).attr('Y'), xc, yc);
+    xc = (parseInt($(xml).find(d_areas[int]).eq(-1).attr('X')) + parseInt($(xml).find(d_areas[int]).eq(0).attr('X'))) / 2;
+    yc = (parseInt($(xml).find(d_areas[int]).eq(-1).attr('Y')) + parseInt($(xml).find(d_areas[int]).eq(0).attr('Y'))) / 2;
+    context.quadraticCurveTo($(xml).find(d_areas[int]).eq(-1).attr('X'), $(xml).find(d_areas[int]).eq(-1).attr('Y'), xc, yc);
 
     //Draw Curve from 0 point to first point 
-    xc = (parseInt($(xml).find(area).eq(0).attr('X')) + parseInt($(xml).find(area).eq(1).attr('X'))) / 2;
-    yc = (parseInt($(xml).find(area).eq(0).attr('Y')) + parseInt($(xml).find(area).eq(1).attr('Y'))) / 2;
-    context.quadraticCurveTo($(xml).find(area).eq(0).attr('X'), $(xml).find(area).eq(0).attr('Y'), xc, yc);
-
-    context.closePath();
-    context.restore();
-
+    xc = (parseInt($(xml).find(d_areas[int]).eq(0).attr('X')) + parseInt($(xml).find(d_areas[int]).eq(1).attr('X'))) / 2;
+    yc = (parseInt($(xml).find(d_areas[int]).eq(0).attr('Y')) + parseInt($(xml).find(d_areas[int]).eq(1).attr('Y'))) / 2;
+    context.quadraticCurveTo($(xml).find(d_areas[int]).eq(0).attr('X'), $(xml).find(d_areas[int]).eq(0).attr('Y'), xc, yc);
+	}
+    if (do_type == "fill") {
+    	context.closePath();
+    	context.fill();
+	} else if (do_type == "clip") {
+		context.closePath();
+		context.clip();
+	} else if (do_type == "stroke") {
+		context.stroke();
+	}    
+  }
 }

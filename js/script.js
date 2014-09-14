@@ -12,7 +12,6 @@ $( document ).ready(function() {
 		    type: 'POST',
 		    data: "category="+value,
 		    success: function() {
-				
 				$( "#ajax_r_products" ).html("Loading...");
 				var sub_cat = $("#sub_cat").find("a").eq(0).html();
 				$.ajax({
@@ -191,14 +190,12 @@ function select_shade(){
 		var data = $("#current_product_data").html(); 
 		var color = $(".shade_box.selected").find("span").html();
 		var op_value = $( "#slider" ).slider("option", "value");
-//		alert("test");
 		what_wearing(data, color, op_value);
-		//Refresh canvas details
 		refresh_model_image();
 	});
 	
 	$(function() {
-		$( "#slider" ).slider({"value" : 20, "max" : 40 });
+		$( "#slider" ).slider({"value" : 20, "max" : 80 });
 		$( "#slider" ).on( "slidechange", function( event, ui ) {
 			//add selected shade to what i am wearing
 			var data = $("#current_product_data").html(); 
@@ -223,6 +220,7 @@ function what_wearing(data, color, op_value){
 	    success: function(msg) { 
 			$("#all_products").html(msg);
 			$("#all_products").css("display","block");
+			refresh_model_image();
 			remove_wearing();
 		}
 	});	
@@ -243,9 +241,9 @@ function remove_wearing(){
 				refresh_model_image();
 			}
 		});	
-	});
-		
+	});	
 }
+
 
 function findsubcat(propName, propValue) {
 	$( "#sub_cat" ).html("");
