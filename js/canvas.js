@@ -63,29 +63,99 @@ function drawlines(canvas, context, xml_name){
     	  if($("#what_iam_wearing").html() != "") {
     		model_data = jQuery.parseJSON($("#what_iam_wearing").html()); 
     		$.each(model_data, function(i, o) {
-    			 if(o.type == "Lipstick") {
+    			if(o.type == "Foundation") {
+    				window.d_foundation = "true";
+    				window.d_shade_c = o.Color.value;
+    				window.op_value = o.op_value;
+    			}
+	    	});
+    		if(window.d_foundation == "true") {
+    			draw_foundation(xml, canvas, context, window.d_shade_c, window.op_value);
+    		}
+    		$.each(model_data, function(i, o) {
+    			if(o.type == "Lipstick") {
     				draw_lipstick(xml, canvas, context, o.Color.value, o.op_value);
     			} else if(o.type == "Eyeliner") {
     				draw_eyeliner(xml, canvas, context, o.Color.value, o.op_value); 
-    			} else if(o.type == "Foundation") {
-    				draw_foundation(xml, canvas, context, o.Color.value, o.op_value); 
+    			} else if(o.type == "Lip Liner") {
+    				draw_lipsliner(xml, canvas, context, o.Color.value, o.op_value); 
+    			} else if(o.type == "Concealer") {
+    				draw_concealer(xml, canvas, context, o.Color.value, o.op_value); 
+    			} else if(o.type == "Blush") {
+    				draw_blush(xml, canvas, context, o.Color.value, o.op_value); 
+    			} else if(o.type == "Eyeshadow") {
+    				draw_eyeshadow(xml, canvas, context, o.Color.value, o.op_value); 
+    			} else if(o.type == "Eyeshadow") {
+    				draw_eyeshadow(xml, canvas, context, o.Color.value, o.op_value); 
+    			} else if(o.type == "Kajal") {
+    				draw_kajal(xml, canvas, context, o.Color.value, o.op_value); 
+    			} else if(o.type == "Mascara") {
+    				draw_mascara(xml, canvas, context, o.Color.value, o.op_value); 
     			}
 	    	});
-//    		console.log(model_data);
     	  }
+    	  console.log(model_data);
     	}
     });
 }
 
+function draw_mascara(xml, canvas, context, shade, op_value){
+	d_areas = ["LOWERLEFTMASCARA", "LOWERRIGHTMASCARA", "UPPERLEFTMASCARA", "UPPERRIGHTMASCARA"];
+	context.fillStyle = shade;
+	context.globalAlpha = op_value/100;
+	do_type = "fill";
+    draw_paths(d_areas, xml, canvas, context, do_type);
+}
+
+function draw_kajal(xml, canvas, context, shade, op_value){
+	d_areas = ["KAJALLOWERLEFT", "KAJALLOWERRIGHT"];
+	context.fillStyle = shade;
+	context.globalAlpha = op_value/100;
+	do_type = "fill";
+    draw_paths(d_areas, xml, canvas, context, do_type);
+}
+
+function draw_eyeshadow(xml, canvas, context, shade, op_value){
+	d_areas = ["EYESHADOWLIDLEFT", "EYESHADOWLIDRIGHT", "EYESHADOWCONTOURLEFT", "EYESHADOWCONTOURRIGHT" ,"EYESHADOWHIGHLIGHTLEFT" ,"EYESHADOWHIGHLIGHTRIGHT"];
+	context.fillStyle = shade;
+	context.globalAlpha = op_value/100;
+	do_type = "fill";
+    draw_paths(d_areas, xml, canvas, context, do_type);
+}
+
+function draw_blush(xml, canvas, context, shade, op_value){
+	d_areas = ["LEFTCHEEK", "LEFTCHEEKSTYLE2", "LEFTCHEEKSTYLE3", "RIGHTCHEEK" ,"RIGHTCHEEKSTYLE2" ,"RIGHTCHEEKSTYLE3"];
+	context.fillStyle = shade;
+	context.globalAlpha = op_value/100;
+	do_type = "fill";
+    draw_paths(d_areas, xml, canvas, context, do_type);
+}
+
+function draw_concealer(xml, canvas, context, shade, op_value){
+	d_areas = ["CONCEALERLEFT, CONCEALERRIGHT"];
+	context.fillStyle = shade;
+	context.globalAlpha = op_value/100;
+	do_type = "fill";
+    draw_paths(d_areas, xml, canvas, context, do_type);
+}
+
 function draw_eyeliner(xml, canvas, context, shade, op_value) {
-	//Create area for Lips
 	d_areas = ["EYELINERLOWERRIGHT", "EYELINERUPPERLEFT", "EYELINERUPPERRIGHT", "EYELINERLOWERLEFT"];
 	context.strokeStyle = shade;
-//	console.log(shade);
     context.globalAlpha = op_value/100;
     do_type = "stroke";
     context.lineWidth = 6;
     draw_paths(d_areas, xml, canvas, context, do_type);
+}
+
+function draw_lipsliner(xml, canvas, context, shade, op_value) {
+	d_areas = ["LIPS"];
+	context.strokeStyle = shade;
+    context.globalAlpha = op_value/100;
+    do_type = "stroke";
+    close_path = "true";
+    context.lineWidth = 6;
+    draw_paths(d_areas, xml, canvas, context, do_type, close_path);
 }
 
 function draw_lipstick(xml, canvas, context, shade, op_value){
@@ -136,7 +206,7 @@ function re_draw(canvas, context) {
     context.drawImage(background, 0, 0); 
 }
 
-function draw_paths(d_areas, xml, canvas, context, do_type){
+function draw_paths(d_areas, xml, canvas, context, do_type, close_path){
   for ( var int = 0; int < d_areas.length; int++) {
 	
 	context.beginPath();
@@ -147,17 +217,11 @@ function draw_paths(d_areas, xml, canvas, context, do_type){
 	if (do_type == "stroke") {
 		//Looping to the last points
 		$(xml).find(d_areas[int]).each(function(index){
-			if(index < parseInt(t_counts)-2) {
-				console.log(index, t_counts, $(this).attr('X'), $(this).next().attr('X'));
+			if(index < parseInt(t_counts)-1) {
 		      var xc = (parseInt($(this).attr('X')) + parseInt($(this).next().attr('X'))) / 2;
 		      var yc = (parseInt($(this).attr('Y')) + parseInt($(this).next().attr('Y'))) / 2;
 		      context.quadraticCurveTo($(this).attr('X'), $(this).attr('Y'), xc, yc);
 		      context.quadraticCurveTo(xc, yc, $(this).next().attr('X'), $(this).next().attr('Y'));
-			} else {
-				console.log(index, t_counts);
-		      var xc = (parseInt($(this).attr('X')) + parseInt($(this).next().attr('X'))) / 2;
-		      var yc = (parseInt($(this).attr('Y')) + parseInt($(this).next().attr('Y'))) / 2;
-		      context.quadraticCurveTo( xc, yc, $(this).attr('X'), $(this).attr('Y'));
 			}
 	    });		
 	} else {
@@ -192,6 +256,9 @@ function draw_paths(d_areas, xml, canvas, context, do_type){
 		context.closePath();
 		context.clip();
 	} else if (do_type == "stroke") {
+		if(close_path == "true") {
+			context.closePath();
+		}
 		context.stroke();
 	}    
   }

@@ -191,7 +191,6 @@ function select_shade(){
 		var color = $(".shade_box.selected").find("span").html();
 		var op_value = $( "#slider" ).slider("option", "value");
 		what_wearing(data, color, op_value);
-		refresh_model_image();
 	});
 	
 	$(function() {
@@ -202,13 +201,9 @@ function select_shade(){
 			var color = $(".shade_box.selected").find("span").html();
 			var op_value = $( "#slider" ).slider("option", "value");
 			what_wearing(data, color, op_value);
-			
-			refresh_model_image();
 		});
 	});
 }
-
-
 
 function what_wearing(data, color, op_value){
 	console.clear();
@@ -220,7 +215,6 @@ function what_wearing(data, color, op_value){
 	    success: function(msg) { 
 			$("#all_products").html(msg);
 			$("#all_products").css("display","block");
-			refresh_model_image();
 			remove_wearing();
 		}
 	});	
@@ -238,10 +232,10 @@ function remove_wearing(){
 				$("#all_products").html(msg);
 				$("#all_products").css("display","block");
 				remove_wearing();
-				refresh_model_image();
 			}
 		});	
 	});	
+	refresh_model_image();
 }
 
 
